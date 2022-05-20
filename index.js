@@ -29,10 +29,13 @@ const run = async () => {
         //~Get all tasks 
         //~http://localhost:5000/get-task
         app.get('/get-task', async (req, res) => {
+            const limit = parseInt(req.query.limit);
+            const pageNumber = parseInt(req.query.pageNumber);
             const email = req.query.email;
             const query = { email: email };
-            const result = await taskCollection.find(query).toArray();
-            res.send(result);
+            const result = await taskCollection.find(query).skip(pageNumber * limit).limit(limit).toArray();
+            const count = await taskCollection.find(query).toArray();
+            res.send({ count: Math.ceil(count.length / limit), result: result });
         })
 
         //~Post tasks 
